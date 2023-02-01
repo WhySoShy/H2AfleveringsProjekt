@@ -9,11 +9,15 @@ namespace H2AfleveringsProjekt.Data.Interface
 {
     public interface IParking
     {
+        List<Car> ListOfCars { get; set; }
+        List<ExtendedCar> ListOfExtendedCars { get; set; }
+        List<BigCar> ListOfBigCars { get; set; }
+
 
         /// <returns>Et af 3 følgende objekter (BigCar, Car, Extendedcar)</returns>
         Parkinglot CheckIn(CarType type, string plate);
         /// <returns>Et af 3 følgende objekter (BigCar, Car, Extendedcar)</returns>
-        Parkinglot CheckOut(string search);
+        Task<KeyValuePair<int, decimal>> CheckOut(string search);
         List<Parkinglot> GetListofCars(CarType type);
     }
 }

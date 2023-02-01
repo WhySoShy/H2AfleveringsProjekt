@@ -12,10 +12,4 @@ namespace H2AfleveringsProjekt.Services.Models
         ExtendedCar = 5,
         BigCar = 7
     }
-    public enum CarPrice
-    {
-        Car = 3,
-        ExtendedCar = 5,
-        BigCar = 7
-    }
 }

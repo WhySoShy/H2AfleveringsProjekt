@@ -13,6 +13,8 @@ namespace H2AfleveringsProjekt
         {
             UI ui = new UI();
 
+
+
             Running();
             void CreateMenu()
             {

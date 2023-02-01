@@ -8,7 +8,7 @@ namespace H2AfleveringsProjekt.Services.Models
 {
     public class Ticket
     {
-        public int? TicketID { get; set; }
+        public int TicketID { get; set; }
         public string NumerberPlate { get; set; }
         public DateTime? ParkStart { get; set; }
     }
