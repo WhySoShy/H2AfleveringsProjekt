@@ -85,6 +85,7 @@ namespace H2AfleveringsProjekt.Data.Methods
             {
                 Car _ = ListOfCars.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
                 int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
+                test(ListOfCars);
                 ListOfCars.Remove(_);
                 return new KeyValuePair<int, decimal>(hours,hours*(int)CarType.Car);
             }
@@ -93,6 +94,7 @@ namespace H2AfleveringsProjekt.Data.Methods
             {
                 ExtendedCar _ = ListOfExtendedCars.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
                 int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
+                test(ListOfExtendedCars);
                 ListOfExtendedCars.Remove(_);
                 return new KeyValuePair<int, decimal>(hours, hours*(int)CarType.ExtendedCar);
             }
@@ -101,11 +103,19 @@ namespace H2AfleveringsProjekt.Data.Methods
             {
                 BigCar _ = ListOfBigCars.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
                 int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
+                test(ListOfBigCars);
                 ListOfBigCars.Remove(_);
                 return  new KeyValuePair<int, decimal>(hours, hours*(int)CarType.BigCar);
             }
             throw new KeyNotFoundException("Could not find the car matching your TicketID / Numberplate.");
+        }   
+        
+        private void test<T>(List<T> testList) where T : ICars
+        {
+            foreach(var item in testList)
+                Console.WriteLine(item.ticket.NumerberPlate);
         }
+
         public List<Parkinglot> GetListofCars(CarType type)
         {
             return null;
