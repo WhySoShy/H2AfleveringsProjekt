@@ -8,9 +8,10 @@ using H2AfleveringsProjekt.Data.Interface;
 using H2AfleveringsProjekt.Data.Methods;
 using H2AfleveringsProjekt.Services.Models;
 
+// TODO: Tilføje try catches, til at tage imod Exceptions!
+
 namespace H2AfleveringsProjekt.Services
 {
-    // TODO: Tilføje try catches, til at tage imod Exceptions!
     public class UI
     {
         private readonly IParking _parking;
@@ -28,15 +29,46 @@ namespace H2AfleveringsProjekt.Services
             for (int i = 0; i < 3; i++)
                 _parking.ListOfBigCars.Add(new BigCar());
         }
-        public void ShowTicketlist()
+        public async Task ShowTicketlist()
         {
-            Console.WriteLine($"Count: {_parking.ListOfCars.Count(x => x.ticket != null)}");
-            Console.WriteLine("\nList\n");
-            for (int i = 0; i < _parking.ListOfCars.Count(x => x.ticket != null); i++)
+
+            while(true)
             {
-                Console.WriteLine("TicketID: " + _parking.ListOfCars[i].ticket.TicketID);
-                Console.WriteLine("Plate: " + _parking.ListOfCars[i].ticket.NumerberPlate);
-                Console.WriteLine("Spot: " + _parking.ListOfCars[i].ParkingSpot + "\n");
+                Console.Clear();
+                Console.WriteLine("What type parking spot would you like to see?\n");
+                Console.WriteLine($"A: {CarType.Car}");
+                Console.WriteLine($"B: {CarType.ExtendedCar}");
+                Console.WriteLine($"C: {CarType.BigCar}");
+                var key = Console.ReadKey(true);
+                Console.Clear();
+                switch (key.Key)
+                {
+                    case ConsoleKey.A:
+                        await ShowCars(_parking.ListOfCars);
+                        return;
+                    case ConsoleKey.B:
+                        await ShowCars(_parking.ListOfExtendedCars);
+                        return;
+                    case ConsoleKey.C:
+                        await ShowCars(_parking.ListOfBigCars);
+                        return;
+                }
+
+
+            }
+        }
+        public async Task ShowCars<T>(List<T> thisList) where T : ICar
+        {
+            if (!thisList.Any(x => x.ticket != null))
+            {
+                Console.WriteLine($"There is no cars of this type.");
+                return;
+            }
+            foreach (var car in thisList)
+            {
+                Console.WriteLine($"---------[  {car.ticket.TicketID}  ]---------");
+                Console.WriteLine($"Platenumber:     {car.ticket.NumerberPlate}");
+                Console.WriteLine($"Parked:          {car.ticket.ParkStart}\n");
             }
         }
         public async Task UnregisterCar()
@@ -66,13 +98,6 @@ namespace H2AfleveringsProjekt.Services
         { 
             try
             {
-                //_parking.CheckIn(CarType.BigCar, "das");
-                if (_parking.ListOfCars.Count(x => x.ticket == null) > 3) { 
-                    for (int i = 0; i <= 3; i++)
-                        _parking.CheckIn(CarType.Car, $"asd{i}".ToLower());
-                    return;
-                }
-
                 Console.Clear();
                 CarType type = await ChooseType();
 

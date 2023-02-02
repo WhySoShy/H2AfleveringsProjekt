@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using H2AfleveringsProjekt.Services.Models;
 using H2AfleveringsProjekt.Data.Interface;
 
+// TODO: Tilføje så de får den næste ledige plads - FIKSED
+// TODO: Tilføj GUUID til Tickets istedet for int som ticketid - FIKSED
+
 namespace H2AfleveringsProjekt.Data.Methods
 {
     public class Parking : IParking
@@ -17,17 +20,15 @@ namespace H2AfleveringsProjekt.Data.Methods
         private Parkinglot parking = new Parkinglot();
         public Parkinglot CheckIn(CarType type, string plate)
         {
-            // TODO: Tilføje så de får den næste ledige plads
-            // TODO: Tilføj GUUID til Tickets istedet for int som ticketid
             try
             {
-                //if (ListOfCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate) ||
-                //    ListOfExtendedCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate) ||
-                //    ListOfBigCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate))
-                //        throw new Exception("There is already a car parked with this plate number!");
+                if (ListOfCars.Any(x => x.ticket?.NumerberPlate?.ToLower() == plate) ||
+                    ListOfExtendedCars.Any(x => x.ticket?.NumerberPlate?.ToLower() == plate) ||
+                    ListOfBigCars.Any(x => x.ticket?.NumerberPlate?.ToLower() == plate))
+                    throw new Exception("There is already a car parked with this plate number!");
 
                 switch (type)
-                {
+                {   
                     case CarType.Car:
                         CreateCarObj(ListOfCars, parking.CarMaxSlots, new Car(), plate);
                         break;
@@ -56,12 +57,15 @@ namespace H2AfleveringsProjekt.Data.Methods
             
             throw new KeyNotFoundException("Could not find the car matching your TicketID / Numberplate.");
         }   
-        private ICars CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICars car, string plate) where T : ICars
+
+
+        #region Private methods
+        private ICar CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICar car, string plate) where T : ICar
         {
             if (listOfCars.Count(x => x.ticket != null) >= maxSlotCount)
                 throw new OverflowException("There is not enough space for you.");
 
-            Car obj = ListOfCars.FirstOrDefault(x => x.ticket == null);
+            ICar obj = ListOfCars.FirstOrDefault(x => x.ticket == null);
 
             car.ticket = new Ticket
             {
@@ -76,14 +80,16 @@ namespace H2AfleveringsProjekt.Data.Methods
                     break;
                 case "ExtendedCar":
                     car.ticket.Type = CarType.ExtendedCar;
+                    obj = ListOfExtendedCars.FirstOrDefault(x => x.ticket == null);
                     break;
                 case "BigCar":
+                    obj = ListOfBigCars.FirstOrDefault(x => x.ticket == null);
                     car.ticket.Type = CarType.BigCar;
                     break;
             }
             obj.ticket = car.ticket;
             return car;
-        } 
+        }
         /// <summary>
         /// Finds the listed car, and gets the price pr hour.
         /// Time raised by 5 hours by default.
@@ -92,18 +98,16 @@ namespace H2AfleveringsProjekt.Data.Methods
         /// <param name="thisList"></param>
         /// <param name="search"></param>
         /// <returns>Hours, Cost of parking in $</returns>
-        private async Task<KeyValuePair<int, int>> GetCalculatedCar<T>(List<T> thisList, string search) where T : ICars
+        private async Task<KeyValuePair<int, int>> GetCalculatedCar<T>(List<T> thisList, string search) where T : ICar
         {
             var _ = thisList.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
             int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
-            //thisList.Remove(_.ticket);
+            CarType? type = _.ticket.Type;
+            _.ticket = null;
             
-            return new KeyValuePair<int, int>(hours, hours*(int)_.ticket.Type);
+            return new KeyValuePair<int, int>(hours, hours*(int)type);
         }
 
-        public List<Parkinglot> GetListofCars(CarType type)
-        {
-            return null;
-        }
+        #endregion
     }
 }

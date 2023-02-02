@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace H2AfleveringsProjekt.Services.Models
 {
-    public interface ICars
+    public interface ICar
     {
         Ticket ticket { get; set; }
         int ParkingSpot { get; set; }

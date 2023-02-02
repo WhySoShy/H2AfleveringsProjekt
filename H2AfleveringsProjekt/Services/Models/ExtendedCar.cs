@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace H2AfleveringsProjekt.Services.Models
 {
-    public class ExtendedCar : Parkinglot, ICars
+    public class ExtendedCar : Parkinglot, ICar
     {
         public Ticket ticket { get; set; }
         public int ParkingSpot { get; set; }
