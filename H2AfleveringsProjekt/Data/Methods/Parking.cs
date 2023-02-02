@@ -17,36 +17,29 @@ namespace H2AfleveringsProjekt.Data.Methods
         private Parkinglot parking = new Parkinglot();
         public Parkinglot CheckIn(CarType type, string plate)
         {
-            if (ListOfCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate) ||
-                ListOfExtendedCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate) ||
-                ListOfBigCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate))
-                    throw new Exception("There is already a car parked with this plate number!");
-
-            switch (type)
+            // TODO: Tilføje så de får den næste ledige plads
+            // TODO: Tilføj GUUID til Tickets istedet for int som ticketid
+            try
             {
-                case CarType.Car:
-                    if (ListOfCars.Count() >= parking.CarMaxSlots)
-                        throw new OverflowException("There is not enough space for you.");
+                //if (ListOfCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate) ||
+                //    ListOfExtendedCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate) ||
+                //    ListOfBigCars.Any(x => x.ticket.NumerberPlate.ToLower() == plate))
+                //        throw new Exception("There is already a car parked with this plate number!");
 
-                    parking = (Car)CreateCarObj(new Car(), plate);
-                    ListOfCars.Add((Car)parking);
-                    break;
-                case CarType.ExtendedCar:
-                    if (ListOfExtendedCars.Count() >= parking.ExtendedCarSlots)
-                        throw new OverflowException("There is not enough space for you.");
-
-                    parking = (ExtendedCar)CreateCarObj(new ExtendedCar(), plate);
-                    ListOfExtendedCars.Add((ExtendedCar)parking);
-
-                    break;
-                case CarType.BigCar:
-                    if (ListOfBigCars.Count() >= parking.BigCarSlots)
-                        throw new OverflowException("There is not enough space for you.");
-
-                    parking = (BigCar)CreateCarObj(new BigCar(), plate);
-                    ListOfBigCars.Add((BigCar)parking); 
-                    break;
+                switch (type)
+                {
+                    case CarType.Car:
+                        CreateCarObj(ListOfCars, parking.CarMaxSlots, new Car(), plate);
+                        break;
+                    case CarType.ExtendedCar:
+                        CreateCarObj(ListOfExtendedCars, parking.ExtendedCarSlots, new ExtendedCar(), plate);
+                        break;
+                    case CarType.BigCar:
+                        CreateCarObj(ListOfBigCars, parking.BigCarSlots, new BigCar(), plate);
+                        break;
+                }
             }
+            catch (OverflowException r){throw r;}
 
             return parking;
         }
@@ -63,31 +56,32 @@ namespace H2AfleveringsProjekt.Data.Methods
             
             throw new KeyNotFoundException("Could not find the car matching your TicketID / Numberplate.");
         }   
-        private ICars CreateCarObj(ICars car, string plate)
+        private ICars CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICars car, string plate) where T : ICars
         {
+            if (listOfCars.Count(x => x.ticket != null) >= maxSlotCount)
+                throw new OverflowException("There is not enough space for you.");
+
+            Car obj = ListOfCars.FirstOrDefault(x => x.ticket == null);
+
             car.ticket = new Ticket
             {
                 NumerberPlate = plate,
-                ParkStart = DateTime.UtcNow
+                ParkStart = DateTime.UtcNow,
+                TicketID = 1 
             };
             switch(car.GetType().Name)
             {
                 case "Car":
-                    car.ticket.TicketID = ListOfCars.Count() + 1;
-                    car.ParkingSpot = ListOfCars.Count() + 1;
                     car.ticket.Type = CarType.Car;
                     break;
                 case "ExtendedCar":
-                    car.ticket.TicketID = ListOfExtendedCars.Count() + 1;
-                    car.ParkingSpot = ListOfExtendedCars.Count() + 1;
                     car.ticket.Type = CarType.ExtendedCar;
                     break;
                 case "BigCar":
-                    car.ticket.TicketID = ListOfBigCars.Count() + 1;
-                    car.ParkingSpot = ListOfBigCars.Count() + 1;
                     car.ticket.Type = CarType.BigCar;
                     break;
             }
+            obj.ticket = car.ticket;
             return car;
         } 
         /// <summary>
@@ -102,7 +96,8 @@ namespace H2AfleveringsProjekt.Data.Methods
         {
             var _ = thisList.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
             int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
-            thisList.Remove(_);
+            //thisList.Remove(_.ticket);
+            
             return new KeyValuePair<int, int>(hours, hours*(int)_.ticket.Type);
         }
 

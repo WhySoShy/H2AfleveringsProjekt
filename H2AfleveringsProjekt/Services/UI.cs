@@ -19,15 +19,24 @@ namespace H2AfleveringsProjekt.Services
             ServiceProvider services = new ServiceCollection().AddSingleton<IParking, Parking>().BuildServiceProvider();
             _parking = services.GetRequiredService<IParking>();
         }
+        public void InitLists()
+        {
+            for (int i = 0; i < 20; i++)
+                _parking.ListOfCars.Add(new Car() { ParkingSpot = i + 1 }) ;
+            for (int i = 0; i < 5; i++)
+                _parking.ListOfExtendedCars.Add(new ExtendedCar());
+            for (int i = 0; i < 3; i++)
+                _parking.ListOfBigCars.Add(new BigCar());
+        }
         public void ShowTicketlist()
         {
-            Console.WriteLine("List\n");
-            Console.WriteLine(_parking.ListOfCars.Count());
-            foreach(var item in _parking.ListOfCars)
+            Console.WriteLine($"Count: {_parking.ListOfCars.Count(x => x.ticket != null)}");
+            Console.WriteLine("\nList\n");
+            for (int i = 0; i < _parking.ListOfCars.Count(x => x.ticket != null); i++)
             {
-                Console.WriteLine("TicketID: " + item.ticket.TicketID);
-                Console.WriteLine("Plate: " + item.ticket.NumerberPlate);
-                Console.WriteLine("Slot: " + item.ParkingSpot);
+                Console.WriteLine("TicketID: " + _parking.ListOfCars[i].ticket.TicketID);
+                Console.WriteLine("Plate: " + _parking.ListOfCars[i].ticket.NumerberPlate);
+                Console.WriteLine("Spot: " + _parking.ListOfCars[i].ParkingSpot + "\n");
             }
         }
         public async Task UnregisterCar()
@@ -42,23 +51,44 @@ namespace H2AfleveringsProjekt.Services
                     KeyValuePair<int, int> info = await _parking.CheckOut(plateNumber);
                     Console.WriteLine($"You have paid: {info.Value} $ for {info.Key} hours");
                     break;
-                }catch(KeyNotFoundException er)
+                }catch(OverflowException er)
                 {
                     Console.WriteLine(er.Message);
                     break;
                 }
+                catch (Exception er)
+                {
+                    Console.WriteLine(er.Message);
+                }
             }
         }
-        public void RegisterCar()
+        public async Task RegisterCar()
         { 
-            for(int i = 0; i <= 19; i++)
-                _parking.CheckIn(CarType.Car, $"asd{i}".ToLower());
-            _parking.CheckIn(CarType.BigCar, "das");
+            try
+            {
+                //_parking.CheckIn(CarType.BigCar, "das");
+                if (_parking.ListOfCars.Count(x => x.ticket == null) > 3) { 
+                    for (int i = 0; i <= 3; i++)
+                        _parking.CheckIn(CarType.Car, $"asd{i}".ToLower());
+                    return;
+                }
+
+                Console.Clear();
+                CarType type = await ChooseType();
+
+                Console.Write("Enter your numberplate: ");
+                string plate = Console.ReadLine();
+
+                Console.Clear();
+                Console.WriteLine($"You have gotten parking slot {_parking.CheckIn(type, plate)}");
+            }
+            catch(Exception er) 
+                { Console.WriteLine(er.Message); }
             
         }
 
         // Private methods
-        protected CarType? ChooseType(bool showPrices = false)
+        protected async Task<CarType> ChooseType()
         {
             while (true)
             {
