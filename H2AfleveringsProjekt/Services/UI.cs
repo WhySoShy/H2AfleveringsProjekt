@@ -39,7 +39,7 @@ namespace H2AfleveringsProjekt.Services
                 Console.Clear();
                 try
                 {
-                    KeyValuePair<int, decimal> info = await _parking.CheckOut(plateNumber);
+                    KeyValuePair<int, int> info = await _parking.CheckOut(plateNumber);
                     Console.WriteLine($"You have paid: {info.Value} $ for {info.Key} hours");
                     break;
                 }catch(KeyNotFoundException er)

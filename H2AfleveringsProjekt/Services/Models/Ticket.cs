@@ -11,5 +11,6 @@ namespace H2AfleveringsProjekt.Services.Models
         public int TicketID { get; set; }
         public string NumerberPlate { get; set; }
         public DateTime? ParkStart { get; set; }
+        public CarType Type { get; set; }
     }
 }

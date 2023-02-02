@@ -17,7 +17,7 @@ namespace H2AfleveringsProjekt.Data.Interface
         /// <returns>Et af 3 følgende objekter (BigCar, Car, Extendedcar)</returns>
         Parkinglot CheckIn(CarType type, string plate);
         /// <returns>Et af 3 følgende objekter (BigCar, Car, Extendedcar)</returns>
-        Task<KeyValuePair<int, decimal>> CheckOut(string search);
+        Task<KeyValuePair<int, int>> CheckOut(string search);
         List<Parkinglot> GetListofCars(CarType type);
     }
 }

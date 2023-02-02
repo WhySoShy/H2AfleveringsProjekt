@@ -28,33 +28,14 @@ namespace H2AfleveringsProjekt.Data.Methods
                     if (ListOfCars.Count() >= parking.CarMaxSlots)
                         throw new OverflowException("There is not enough space for you.");
 
-                    parking = new Car()
-                    {
-                        ticket = new Ticket()
-                        {
-                            NumerberPlate = plate,
-                            ParkStart = DateTime.UtcNow,
-                            TicketID = ListOfCars.Count() + 1
-                        },
-                        ParkingSpot = ListOfCars.Count() + 1
-                    };
+                    parking = (Car)CreateCarObj(new Car(), plate);
                     ListOfCars.Add((Car)parking);
                     break;
                 case CarType.ExtendedCar:
                     if (ListOfExtendedCars.Count() >= parking.ExtendedCarSlots)
                         throw new OverflowException("There is not enough space for you.");
 
-                    parking = new ExtendedCar()
-                    {
-                        ticket = new Ticket()
-                        {
-                            NumerberPlate = plate,
-                            ParkStart = DateTime.UtcNow,
-                            TicketID = ListOfExtendedCars.Count() + 1
-                        },
-                        ParkingSpot = ListOfExtendedCars.Count()+1
-
-                    };
+                    parking = (ExtendedCar)CreateCarObj(new ExtendedCar(), plate);
                     ListOfExtendedCars.Add((ExtendedCar)parking);
 
                     break;
@@ -62,58 +43,67 @@ namespace H2AfleveringsProjekt.Data.Methods
                     if (ListOfBigCars.Count() >= parking.BigCarSlots)
                         throw new OverflowException("There is not enough space for you.");
 
-                    parking = new BigCar()
-                    {
-                        ticket = new Ticket()
-                        {
-                            NumerberPlate = plate,
-                            ParkStart = DateTime.UtcNow,
-                            TicketID = ListOfBigCars.Count() + 1
-                        },
-                        ParkingSpot = ListOfBigCars.Count() + 1
-                    };
-
+                    parking = (BigCar)CreateCarObj(new BigCar(), plate);
                     ListOfBigCars.Add((BigCar)parking); 
                     break;
             }
 
             return parking;
         }
-        public async Task<KeyValuePair<int, decimal>> CheckOut(string search)
+        public async Task<KeyValuePair<int, int>> CheckOut(string search)
         {            
             if (ListOfCars.Any(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search))
-            {
-                Car _ = ListOfCars.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
-                int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
-                test(ListOfCars);
-                ListOfCars.Remove(_);
-                return new KeyValuePair<int, decimal>(hours,hours*(int)CarType.Car);
-            }
+                return await GetCalculatedCar(ListOfCars, search);
 
             else if (ListOfExtendedCars.Any(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search))
-            {
-                ExtendedCar _ = ListOfExtendedCars.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
-                int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
-                test(ListOfExtendedCars);
-                ListOfExtendedCars.Remove(_);
-                return new KeyValuePair<int, decimal>(hours, hours*(int)CarType.ExtendedCar);
-            }
+                return await GetCalculatedCar(ListOfExtendedCars, search);
             
             else if (ListOfBigCars.Any(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search))
-            {
-                BigCar _ = ListOfBigCars.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
-                int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
-                test(ListOfBigCars);
-                ListOfBigCars.Remove(_);
-                return  new KeyValuePair<int, decimal>(hours, hours*(int)CarType.BigCar);
-            }
+                return await GetCalculatedCar(ListOfBigCars, search);
+            
             throw new KeyNotFoundException("Could not find the car matching your TicketID / Numberplate.");
         }   
-        
-        private void test<T>(List<T> testList) where T : ICars
+        private ICars CreateCarObj(ICars car, string plate)
         {
-            foreach(var item in testList)
-                Console.WriteLine(item.ticket.NumerberPlate);
+            car.ticket = new Ticket
+            {
+                NumerberPlate = plate,
+                ParkStart = DateTime.UtcNow
+            };
+            switch(car.GetType().Name)
+            {
+                case "Car":
+                    car.ticket.TicketID = ListOfCars.Count() + 1;
+                    car.ParkingSpot = ListOfCars.Count() + 1;
+                    car.ticket.Type = CarType.Car;
+                    break;
+                case "ExtendedCar":
+                    car.ticket.TicketID = ListOfExtendedCars.Count() + 1;
+                    car.ParkingSpot = ListOfExtendedCars.Count() + 1;
+                    car.ticket.Type = CarType.ExtendedCar;
+                    break;
+                case "BigCar":
+                    car.ticket.TicketID = ListOfBigCars.Count() + 1;
+                    car.ParkingSpot = ListOfBigCars.Count() + 1;
+                    car.ticket.Type = CarType.BigCar;
+                    break;
+            }
+            return car;
+        } 
+        /// <summary>
+        /// Finds the listed car, and gets the price pr hour.
+        /// Time raised by 5 hours by default.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="thisList"></param>
+        /// <param name="search"></param>
+        /// <returns>Hours, Cost of parking in $</returns>
+        private async Task<KeyValuePair<int, int>> GetCalculatedCar<T>(List<T> thisList, string search) where T : ICars
+        {
+            var _ = thisList.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
+            int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
+            thisList.Remove(_);
+            return new KeyValuePair<int, int>(hours, hours*(int)_.ticket.Type);
         }
 
         public List<Parkinglot> GetListofCars(CarType type)
