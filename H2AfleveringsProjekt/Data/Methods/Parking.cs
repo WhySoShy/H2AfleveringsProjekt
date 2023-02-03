@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using H2AfleveringsProjekt.Services.Models;
 using H2AfleveringsProjekt.Data.Interface;
-using System.Threading;
 
 // TODO: Tilføje så de får den næste ledige plads - FIKSED
 // TODO: Tilføj GUUID til Tickets istedet for int som ticketid
@@ -18,6 +16,7 @@ namespace H2AfleveringsProjekt.Data.Methods
         public List<Car> ListOfCars { get; set; } = new List<Car>();
         public List<ExtendedCar> ListOfExtendedCars { get; set; } = new List<ExtendedCar>();
         public List<BigCar> ListOfBigCars { get; set; } = new List<BigCar>();
+        public List<CarWash> ListOfCarWashes { get; set; } = new List<CarWash>();
 
         private Parkinglot parking = new Parkinglot();
         public async Task<int> CheckIn(CarType type, string plate)

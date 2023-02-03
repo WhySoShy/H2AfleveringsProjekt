@@ -64,6 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Models\BigCar.cs" />
     <Compile Include="Services\Models\Car.cs" />
+    <Compile Include="Services\Models\CarWash.cs" />
     <Compile Include="Services\Models\ICar.cs" />
     <Compile Include="Services\Models\CarType.cs" />
     <Compile Include="Services\Models\ExtendedCar.cs" />
