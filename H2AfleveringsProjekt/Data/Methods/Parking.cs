@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using H2AfleveringsProjekt.Services.Models;
 using H2AfleveringsProjekt.Data.Interface;
+using System.Threading;
 
 // TODO: Tilføje så de får den næste ledige plads - FIKSED
-// TODO: Tilføj GUUID til Tickets istedet for int som ticketid - FIKSED
+// TODO: Tilføj GUUID til Tickets istedet for int som ticketid
+// TODO: Tilføje en global tilbage knap
 
 namespace H2AfleveringsProjekt.Data.Methods
 {
@@ -18,7 +20,7 @@ namespace H2AfleveringsProjekt.Data.Methods
         public List<BigCar> ListOfBigCars { get; set; } = new List<BigCar>();
 
         private Parkinglot parking = new Parkinglot();
-        public Parkinglot CheckIn(CarType type, string plate)
+        public async Task<int> CheckIn(CarType type, string plate)
         {
             try
             {
@@ -30,19 +32,16 @@ namespace H2AfleveringsProjekt.Data.Methods
                 switch (type)
                 {   
                     case CarType.Car:
-                        CreateCarObj(ListOfCars, parking.CarMaxSlots, new Car(), plate);
-                        break;
+                        return await CreateCarObj(ListOfCars, parking.CarMaxSlots, new Car(), plate);
                     case CarType.ExtendedCar:
-                        CreateCarObj(ListOfExtendedCars, parking.ExtendedCarSlots, new ExtendedCar(), plate);
-                        break;
+                        return await CreateCarObj(ListOfExtendedCars, parking.ExtendedCarSlots, new ExtendedCar(), plate);
                     case CarType.BigCar:
-                        CreateCarObj(ListOfBigCars, parking.BigCarSlots, new BigCar(), plate);
-                        break;
+                        return await CreateCarObj(ListOfBigCars, parking.BigCarSlots, new BigCar(), plate);
                 }
+                return 2;
             }
             catch (OverflowException r){throw r;}
 
-            return parking;
         }
         public async Task<KeyValuePair<int, int>> CheckOut(string search)
         {            
@@ -60,7 +59,7 @@ namespace H2AfleveringsProjekt.Data.Methods
 
 
         #region Private methods
-        private ICar CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICar car, string plate) where T : ICar
+        private async Task<int> CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICar car, string plate) where T : ICar
         {
             if (listOfCars.Count(x => x.ticket != null) >= maxSlotCount)
                 throw new OverflowException("There is not enough space for you.");
@@ -88,7 +87,7 @@ namespace H2AfleveringsProjekt.Data.Methods
                     break;
             }
             obj.ticket = car.ticket;
-            return car;
+            return obj.ParkingSpot;
         }
         /// <summary>
         /// Finds the listed car, and gets the price pr hour.
