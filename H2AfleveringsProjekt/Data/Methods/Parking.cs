@@ -13,12 +13,18 @@ namespace H2AfleveringsProjekt.Data.Methods
 {
     public class Parking : IParking
     {
+        #region Properties and Fields
         public List<Car> ListOfCars { get; set; } = new List<Car>();
         public List<ExtendedCar> ListOfExtendedCars { get; set; } = new List<ExtendedCar>();
         public List<BigCar> ListOfBigCars { get; set; } = new List<BigCar>();
         public List<CarWash> ListOfCarWashes { get; set; } = new List<CarWash>();
 
-        private Parkinglot parking = new Parkinglot();
+        int _ticketsSold = 0;
+        int _carWashSold = 0;
+
+        #endregion
+
+
         public async Task<int> CheckIn(CarType type, string plate)
         {
             try
@@ -27,6 +33,8 @@ namespace H2AfleveringsProjekt.Data.Methods
                     ListOfExtendedCars.Any(x => x.ticket?.NumerberPlate?.ToLower() == plate) ||
                     ListOfBigCars.Any(x => x.ticket?.NumerberPlate?.ToLower() == plate))
                     throw new Exception("There is already a car parked with this plate number!");
+
+                Parkinglot parking = new Parkinglot();
 
                 switch (type)
                 {   
@@ -55,21 +63,58 @@ namespace H2AfleveringsProjekt.Data.Methods
             
             throw new KeyNotFoundException("Could not find the car matching your TicketID / Numberplate.");
         }   
+        public async Task WashCar(WashType type, Ticket ticket)
+        {
+            _carWashSold++;
+            CarWash _ = new CarWash()
+            {
+                CarWashID = _carWashSold,
+                WashType = type,
+                Ticket = ticket,
+            };
+            Console.WriteLine("Duration: " + (int)type);
 
+            if (!ListOfCarWashes.Any())
+                _.WashEnd = DateTime.Now.AddSeconds((int)type);
+            else
+                _.WashEnd = ListOfCarWashes[ListOfCarWashes.Count() - 1].WashEnd.AddSeconds((int)type);
+            Console.WriteLine(_.WashEnd);
+
+            ListOfCarWashes.Add(_);
+        }
+        /// <summary>
+        /// Task for running the Carwash
+        /// </summary>
+        /// <returns></returns>
+        public async Task RunCarWash()
+        {
+            while(true)
+            {
+                await Task.Delay(250);
+                try { CheckForWash(); }
+                catch { }
+            }
+        }
 
         #region Private methods
+        /// <summary>
+        /// Creates the types of cars that is needed and being called from CheckIn()
+        /// </summary>
+        /// <typeparam name="T">Can either be Car, ExtendedCar, BigCar</typeparam>
+        /// <returns></returns>
+        /// <exception cref="OverflowException"></exception>
         private async Task<int> CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICar car, string plate) where T : ICar
         {
             if (listOfCars.Count(x => x.ticket != null) >= maxSlotCount)
                 throw new OverflowException("There is not enough space for you.");
 
             ICar obj = ListOfCars.FirstOrDefault(x => x.ticket == null);
-
+            _ticketsSold++;
             car.ticket = new Ticket
             {
                 NumerberPlate = plate,
                 ParkStart = DateTime.UtcNow,
-                TicketID = 1 
+                TicketID = _ticketsSold
             };
             switch(car.GetType().Name)
             {
@@ -105,7 +150,15 @@ namespace H2AfleveringsProjekt.Data.Methods
             
             return new KeyValuePair<int, int>(hours, hours*(int)type);
         }
+        private void CheckForWash()
+        {
+            if (!ListOfCarWashes.Any())
+                return;
 
+            CarWash end = ListOfCarWashes[0];
+            if (end.WashEnd.CompareTo(DateTime.Now) < 0) 
+                ListOfCarWashes.Remove(end);
+        }
         #endregion
     }
 }

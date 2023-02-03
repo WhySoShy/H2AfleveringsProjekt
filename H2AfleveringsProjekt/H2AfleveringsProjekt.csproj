@@ -66,10 +66,11 @@
     <Compile Include="Services\Models\Car.cs" />
     <Compile Include="Services\Models\CarWash.cs" />
     <Compile Include="Services\Models\ICar.cs" />
-    <Compile Include="Services\Models\CarType.cs" />
+    <Compile Include="Services\Models\Enums\CarType.cs" />
     <Compile Include="Services\Models\ExtendedCar.cs" />
     <Compile Include="Services\Models\Parkinglot.cs" />
     <Compile Include="Services\Models\Ticket.cs" />
+    <Compile Include="Services\Models\Enums\WashType.cs" />
     <Compile Include="Services\UI.cs" />
   </ItemGroup>
   <ItemGroup>

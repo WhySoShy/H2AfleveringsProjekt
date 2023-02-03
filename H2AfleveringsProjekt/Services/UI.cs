@@ -26,6 +26,8 @@ namespace H2AfleveringsProjekt.Services
                 _parking.ListOfExtendedCars.Add(new ExtendedCar() { ParkingSpot = i + 1 });
             for (int i = 0; i < 3; i++)
                 _parking.ListOfBigCars.Add(new BigCar() { ParkingSpot = i + 1 });
+
+            Task.Run(() => _parking.RunCarWash());
         }
         public async Task ShowTicketlist()
         {
@@ -89,13 +91,19 @@ namespace H2AfleveringsProjekt.Services
                     Console.Write("Enter your numberplate: ");
                     plate = Console.ReadLine().Trim();
                     Console.Clear();
+                    Console.WriteLine($"You have gotten parking slot {await _parking.CheckIn(type, plate)}");
                 }
 
-                Console.WriteLine($"You have gotten parking slot {await _parking.CheckIn(type, plate)}");
             }
             catch(Exception er) 
                 { Console.WriteLine(er.Message); }
             
+        }
+        public async Task WashCar()
+        {
+            _parking.WashCar(WashType.Basic, new Ticket() { NumerberPlate = "", TicketID = 1, ParkStart = DateTime.Now, Type = CarType.Car});
+            _parking.WashCar(WashType.Economic, new Ticket() { NumerberPlate = "", TicketID = 2, ParkStart = DateTime.Now.AddSeconds(1), Type = CarType.Car});
+            _parking.WashCar(WashType.Basic, new Ticket() { NumerberPlate = "", TicketID = 3, ParkStart = DateTime.Now.AddSeconds(2), Type = CarType.Car});
         }
 
         #region Private & Protected methods

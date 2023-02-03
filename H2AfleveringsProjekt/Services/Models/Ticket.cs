@@ -12,5 +12,6 @@ namespace H2AfleveringsProjekt.Services.Models
         public string NumerberPlate { get; set; } = null;
         public DateTime? ParkStart { get; set; } = null;
         public CarType? Type { get; set; } = null;
+        public CarWash CarWash { get; set; }
     }
 }
