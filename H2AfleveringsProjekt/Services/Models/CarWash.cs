@@ -12,5 +12,6 @@ namespace H2AfleveringsProjekt.Services.Models
         public int CarWashID { get; set; }
         public DateTime WashEnd { get; set; }
         public WashType WashType { get; set; }
+        public int? Price { get; set; }
     }
 }

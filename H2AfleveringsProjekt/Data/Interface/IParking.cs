@@ -13,13 +13,13 @@ namespace H2AfleveringsProjekt.Data.Interface
         List<ExtendedCar> ListOfExtendedCars { get; set; }
         List<BigCar> ListOfBigCars { get; set; }
 
-
+        /// <returns>The object of the TicketID or numberplate has been found</returns>
+        ICar FindCarAsync<T>(string search);
         /// <returns>Et af 3 følgende objekter (BigCar, Car, Extendedcar)</returns>
         Task<int> CheckIn(CarType type, string plate);
         /// <returns>Et af 3 følgende objekter (BigCar, Car, Extendedcar)</returns>
         Task<KeyValuePair<int, int>> CheckOut(string search);
-        Task WashCar(WashType type, Ticket ticket);
-
+        int WashCar(WashType type, Ticket ticket);
         Task RunCarWash();
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using H2AfleveringsProjekt.Services.Models;
 using H2AfleveringsProjekt.Data.Interface;
+using H2AfleveringsProjekt.Services.Models.Enums;
 
 // TODO: Tilføje så de får den næste ledige plads - FIKSED
-// TODO: Tilføj GUUID til Tickets istedet for int som ticketid
 // TODO: Tilføje en global tilbage knap
 
 namespace H2AfleveringsProjekt.Data.Methods
@@ -51,19 +51,23 @@ namespace H2AfleveringsProjekt.Data.Methods
 
         }
         public async Task<KeyValuePair<int, int>> CheckOut(string search)
-        {            
-            if (ListOfCars.Any(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search))
-                return await GetCalculatedCar(ListOfCars, search);
+        {
+            ICar _;
+            _ = ListOfCars.FirstOrDefault(x => x.ticket?.NumerberPlate == search || Convert.ToString(x.ticket?.TicketID) == search);
+            if (_ != null)
+                return await GetCalculatedCar(_, search);
 
-            else if (ListOfExtendedCars.Any(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search))
-                return await GetCalculatedCar(ListOfExtendedCars, search);
-            
-            else if (ListOfBigCars.Any(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search))
-                return await GetCalculatedCar(ListOfBigCars, search);
+            _ = ListOfExtendedCars.FirstOrDefault(x => x.ticket?.NumerberPlate == search || Convert.ToString(x.ticket?.TicketID) == search);
+            if (_ != null)
+                return await GetCalculatedCar(_, search);
+
+            _ = ListOfBigCars.FirstOrDefault(x => x.ticket?.NumerberPlate == search || Convert.ToString(x.ticket?.TicketID) == search);
+            if (_ != null)
+                return await GetCalculatedCar(_, search);
             
             throw new KeyNotFoundException("Could not find the car matching your TicketID / Numberplate.");
         }   
-        public async Task WashCar(WashType type, Ticket ticket)
+        public int WashCar(WashType type, Ticket ticket)
         {
             _carWashSold++;
             CarWash _ = new CarWash()
@@ -71,17 +75,37 @@ namespace H2AfleveringsProjekt.Data.Methods
                 CarWashID = _carWashSold,
                 WashType = type,
                 Ticket = ticket,
+                Price = GetWashPrice(type)
             };
-            Console.WriteLine("Duration: " + (int)type);
 
             if (!ListOfCarWashes.Any())
                 _.WashEnd = DateTime.Now.AddSeconds((int)type);
             else
                 _.WashEnd = ListOfCarWashes[ListOfCarWashes.Count() - 1].WashEnd.AddSeconds((int)type);
-            Console.WriteLine(_.WashEnd);
 
             ListOfCarWashes.Add(_);
+
+            return (int)_.WashType;
         }
+        public ICar FindCarAsync<T>(string search)
+        {
+            ICar _;
+            _ = ListOfCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
+            if (_ != null)
+                return _;
+
+            _ = ListOfExtendedCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
+            if (_ != null)
+                return _;
+
+            _ = ListOfBigCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
+            if (_ != null)
+                return _;
+
+            return null;
+        }
+
+        #region Tasks
         /// <summary>
         /// Task for running the Carwash
         /// </summary>
@@ -95,6 +119,7 @@ namespace H2AfleveringsProjekt.Data.Methods
                 catch { }
             }
         }
+        #endregion
 
         #region Private methods
         /// <summary>
@@ -141,14 +166,13 @@ namespace H2AfleveringsProjekt.Data.Methods
         /// <param name="thisList"></param>
         /// <param name="search"></param>
         /// <returns>Hours, Cost of parking in $</returns>
-        private async Task<KeyValuePair<int, int>> GetCalculatedCar<T>(List<T> thisList, string search) where T : ICar
+        private async Task<KeyValuePair<int, int>> GetCalculatedCar(ICar car, string search)
         {
-            var _ = thisList.Find(x => x.ticket.NumerberPlate == search || Convert.ToString(x.ticket.TicketID) == search);
-            int hours = _.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
-            CarType? type = _.ticket.Type;
-            _.ticket = null;
+            int hours = car.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
+            CarType? type = car.ticket.Type;
+            car.ticket = null;
             
-            return new KeyValuePair<int, int>(hours, hours*(int)type);
+            return new KeyValuePair<int, int>(hours, hours*(int)type + (car.ticket?.CarWash.Price ?? 0));
         }
         private void CheckForWash()
         {
@@ -156,8 +180,36 @@ namespace H2AfleveringsProjekt.Data.Methods
                 return;
 
             CarWash end = ListOfCarWashes[0];
-            if (end.WashEnd.CompareTo(DateTime.Now) < 0) 
+            if (end.WashEnd.CompareTo(DateTime.Now) < 0)
+            {
                 ListOfCarWashes.Remove(end);
+                switch(end.Ticket.Type)
+                {
+                    case CarType.Car:
+                        ListOfCars.FirstOrDefault(x => x.ticket.TicketID == end.Ticket.TicketID).ticket.CarWash = end;
+                        break;
+                    case CarType.ExtendedCar:
+                        ListOfExtendedCars.FirstOrDefault(x => x.ticket.TicketID == end.Ticket.TicketID).ticket.CarWash = end;
+                        break;
+                    case CarType.BigCar:
+                        ListOfBigCars.FirstOrDefault(x => x.ticket.TicketID == end.Ticket.TicketID).ticket.CarWash = end;
+                        break;
+                }
+                Console.WriteLine("Done");
+            }
+        }
+        private int GetWashPrice(WashType type)
+        {
+            switch (type)
+            {
+                case WashType.Economic:
+                    return (int)WashPrice.Economic;
+                case WashType.Basic:
+                    return (int)WashPrice.Basic;
+                case WashType.Premium:
+                    return (int)WashPrice.Premium;
+            }
+            return 0;
         }
         #endregion
     }

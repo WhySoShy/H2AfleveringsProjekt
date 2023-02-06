@@ -65,6 +65,7 @@
     <Compile Include="Services\Models\BigCar.cs" />
     <Compile Include="Services\Models\Car.cs" />
     <Compile Include="Services\Models\CarWash.cs" />
+    <Compile Include="Services\Models\Enums\WashPrice.cs" />
     <Compile Include="Services\Models\ICar.cs" />
     <Compile Include="Services\Models\Enums\CarType.cs" />
     <Compile Include="Services\Models\ExtendedCar.cs" />

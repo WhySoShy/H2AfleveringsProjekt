@@ -30,6 +30,7 @@ namespace H2AfleveringsProjekt
                     Console.Clear();
                     CreateMenu();
                     var key = Console.ReadKey(true);
+                    Console.Clear();
                     switch (key.Key)
                     {
                         case ConsoleKey.A:

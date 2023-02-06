@@ -70,11 +70,12 @@ namespace H2AfleveringsProjekt.Services
                 {
                     KeyValuePair<int, int> info = await _parking.CheckOut(plateNumber);
                     Console.WriteLine($"You have paid: {info.Value} $ for {info.Key} hours");
-                    break;
+                    return;
                 }catch(OverflowException er)
                 {
                     Console.WriteLine(er.Message);
-                    break;
+                    Console.ReadLine();
+                    return;
                 }
                 catch (Exception) { }
             }
@@ -84,7 +85,7 @@ namespace H2AfleveringsProjekt.Services
             try
             {
                 Console.Clear();
-                CarType type = await ChooseType();
+                CarType type = await ChooseCarType();
                 string plate = String.Empty;
                  while (String.IsNullOrEmpty(plate))
                 {
@@ -101,12 +102,46 @@ namespace H2AfleveringsProjekt.Services
         }
         public async Task WashCar()
         {
-            _parking.WashCar(WashType.Basic, new Ticket() { NumerberPlate = "", TicketID = 1, ParkStart = DateTime.Now, Type = CarType.Car});
-            _parking.WashCar(WashType.Economic, new Ticket() { NumerberPlate = "", TicketID = 2, ParkStart = DateTime.Now.AddSeconds(1), Type = CarType.Car});
-            _parking.WashCar(WashType.Basic, new Ticket() { NumerberPlate = "", TicketID = 3, ParkStart = DateTime.Now.AddSeconds(2), Type = CarType.Car});
+            while(true)
+            {
+                Console.Write("Enter your TicketID or numberplate: ");
+                string search = Console.ReadLine();
+                Console.Clear();
+
+                if (String.IsNullOrEmpty(search))
+                {
+                    DesignError("Your search field cannot be empty!");
+                    continue;
+                }
+                var obj = _parking.FindCarAsync<ICar>(search);
+                if (obj == null)
+                {
+                    DesignError("Could not find your car");
+                    continue;
+                }
+                try
+                {
+                    WashType type = await ChooseWashType();
+                    _parking.WashCar(type, obj.ticket);
+                    return;
+                }catch { }
+
+
+            }
         }
 
         #region Private & Protected methods
+        /// <summary>
+        /// Displays your error message in red and changes the text to white again.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private async Task DesignError(string text)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(text);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
         private async Task ShowCarsAsync<T>(List<T> thisList) where T : ICar
         {
             if (!thisList.Any(x => x.ticket != null))
@@ -119,10 +154,18 @@ namespace H2AfleveringsProjekt.Services
                 Console.WriteLine($"---------[  {car.ticket.TicketID}  ]---------");
                 Console.WriteLine($"Platenumber:     {car.ticket.NumerberPlate}");
                 Console.WriteLine($"Parked:          {car.ticket.ParkStart}");
-                Console.WriteLine($"Parking spot:    {car.ParkingSpot}\n");
+                Console.WriteLine($"Parking spot:    {car.ParkingSpot}");
+                if (car.ticket.CarWash != null)
+                {
+                    Console.WriteLine($"---------[  CarWash  ]---------");
+                    Console.WriteLine($"Wash type:   {car.ticket.CarWash.WashType}");
+                    Console.WriteLine($"Wash end:    {car.ticket.CarWash.WashEnd}");
+                    Console.WriteLine($"Wash price:  {car.ticket.CarWash.Price}$");
+                }
+                Console.WriteLine("\n");
             }
         }
-        private async Task<CarType> ChooseType()
+        private async Task<CarType> ChooseCarType()
         {
             while (true)
             {
@@ -142,6 +185,28 @@ namespace H2AfleveringsProjekt.Services
                         return CarType.ExtendedCar;
                     case ConsoleKey.C:
                         return CarType.BigCar;
+                }
+            }
+        }
+        private async Task<WashType> ChooseWashType()
+        {
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("Prices are per wash \n");
+                Console.WriteLine($"A: {WashType.Economic}      | Time: {(int)WashType.Economic}minutes      | Price: ");
+                Console.WriteLine($"B: {WashType.Basic}         | Time: {(int)WashType.Basic}minutes       | Price: ");
+                Console.WriteLine($"C: {WashType.Premium}       | Time: {(int)WashType.Premium}minutes      | Price: ");
+                ConsoleKeyInfo key = Console.ReadKey(true);
+
+                switch(key.Key)
+                {
+                    case ConsoleKey.A:
+                        return WashType.Economic;
+                    case ConsoleKey.B:
+                        return WashType.Basic;
+                    case ConsoleKey.C:
+                        return WashType.Premium;
                 }
             }
         }
