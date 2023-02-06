@@ -10,7 +10,7 @@ namespace H2AfleveringsProjekt.Services.Models
     {
         //Time in minutes
         Economic = 10,
-        Basic = 2,
+        Basic = 15,
         Premium = 25
     }
 }

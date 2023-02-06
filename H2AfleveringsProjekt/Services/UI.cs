@@ -26,6 +26,8 @@ namespace H2AfleveringsProjekt.Services
                 _parking.ListOfExtendedCars.Add(new ExtendedCar() { ParkingSpot = i + 1 });
             for (int i = 0; i < 3; i++)
                 _parking.ListOfBigCars.Add(new BigCar() { ParkingSpot = i + 1 });
+            for (int i = 1; i <= 10; i++)
+                _parking.CheckIn(CarType.Car, $"car{i}");
 
             Task.Run(() => _parking.RunCarWash());
         }
@@ -123,11 +125,14 @@ namespace H2AfleveringsProjekt.Services
                 {
                     WashType type = await ChooseWashType();
                     _parking.WashCar(type, obj.ticket);
-                    return;
+                    break;
                 }catch { }
-
-
             }
+        }
+        public void GetWashList()
+        {
+            Console.WriteLine($"Estimated waiting time for hall1: {_parking.EstimatedTime(_parking.WashHall1).Minutes} minutes");
+            Console.WriteLine($"Estimated waiting time for hall2: {_parking.EstimatedTime(_parking.WashHall2).Minutes} minutes");
         }
 
         #region Private & Protected methods
@@ -151,10 +156,10 @@ namespace H2AfleveringsProjekt.Services
             }
             foreach (var car in thisList.Where(x => x.ticket != null).ToList())
             {
-                Console.WriteLine($"---------[  {car.ticket.TicketID}  ]---------");
+                Console.WriteLine($"---------[  {car.ParkingSpot}  ]---------");
+                Console.WriteLine($"TicketID:       {car.ticket.TicketID}");
                 Console.WriteLine($"Platenumber:     {car.ticket.NumerberPlate}");
                 Console.WriteLine($"Parked:          {car.ticket.ParkStart}");
-                Console.WriteLine($"Parking spot:    {car.ParkingSpot}");
                 if (car.ticket.CarWash != null)
                 {
                     Console.WriteLine($"---------[  CarWash  ]---------");
@@ -194,9 +199,9 @@ namespace H2AfleveringsProjekt.Services
             {
                 Console.Clear();
                 Console.WriteLine("Prices are per wash \n");
-                Console.WriteLine($"A: {WashType.Economic}      | Time: {(int)WashType.Economic}minutes      | Price: ");
-                Console.WriteLine($"B: {WashType.Basic}         | Time: {(int)WashType.Basic}minutes       | Price: ");
-                Console.WriteLine($"C: {WashType.Premium}       | Time: {(int)WashType.Premium}minutes      | Price: ");
+                Console.WriteLine($"A: {WashType.Economic}      | Time: {(int)WashType.Economic}minutes      | Price: {WashPrice.Economic}   | EST: {_parking.EstimatedTime().Minutes}m");
+                Console.WriteLine($"B: {WashType.Basic}         | Time: {(int)WashType.Basic}minutes      | Price: {WashPrice.Basic}      | EST: {_parking.EstimatedTime().Minutes}m");
+                Console.WriteLine($"C: {WashType.Premium}       | Time: {(int)WashType.Premium}minutes      | Price: {WashPrice.Premium}    | EST: {_parking.EstimatedTime().Minutes}m");
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
                 switch(key.Key)

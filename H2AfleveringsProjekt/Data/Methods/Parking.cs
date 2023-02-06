@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using H2AfleveringsProjekt.Services.Models;
 using H2AfleveringsProjekt.Data.Interface;
-using H2AfleveringsProjekt.Services.Models.Enums;
 
 // TODO: Tilføje så de får den næste ledige plads - FIKSED
 // TODO: Tilføje en global tilbage knap
@@ -17,7 +16,8 @@ namespace H2AfleveringsProjekt.Data.Methods
         public List<Car> ListOfCars { get; set; } = new List<Car>();
         public List<ExtendedCar> ListOfExtendedCars { get; set; } = new List<ExtendedCar>();
         public List<BigCar> ListOfBigCars { get; set; } = new List<BigCar>();
-        public List<CarWash> ListOfCarWashes { get; set; } = new List<CarWash>();
+        public List<CarWash> WashHall1 { get; set; } = new List<CarWash>();
+        public List<CarWash> WashHall2 { get; set; } = new List<CarWash>();
 
         int _ticketsSold = 0;
         int _carWashSold = 0;
@@ -78,12 +78,21 @@ namespace H2AfleveringsProjekt.Data.Methods
                 Price = GetWashPrice(type)
             };
 
-            if (!ListOfCarWashes.Any())
-                _.WashEnd = DateTime.Now.AddSeconds((int)type);
+            if (!WashHall1.Any() || !WashHall2.Any())
+            {
+                _.WashEnd = DateTime.Now.AddMinutes((int)type);
+            }
             else
-                _.WashEnd = ListOfCarWashes[ListOfCarWashes.Count() - 1].WashEnd.AddSeconds((int)type);
-
-            ListOfCarWashes.Add(_);
+            {
+                if (_carWashSold % 2 == 0)
+                    _.WashEnd = WashHall1[WashHall1.Count() - 1].WashEnd.AddMinutes((int)type);
+                else 
+                    _.WashEnd = WashHall2[WashHall2.Count() - 1].WashEnd.AddMinutes((int)type);
+            }
+            if (_carWashSold % 2 == 0)
+                WashHall1.Add(_);
+            else 
+                WashHall2.Add(_);
 
             return (int)_.WashType;
         }
@@ -104,6 +113,33 @@ namespace H2AfleveringsProjekt.Data.Methods
 
             return null;
         }
+        public TimeSpan EstimatedTime()
+        {
+            DateTime time1 = DateTime.Now;
+            DateTime time2 = DateTime.Now;
+
+            foreach(var item in WashHall1)
+                time1 = time1.Add(item.WashEnd - time1);
+
+            foreach (var item in WashHall2)
+                time2 = time2.Add(item.WashEnd  - time2);
+
+            Console.WriteLine((time1 - DateTime.Now).Minutes);
+            Console.WriteLine((time2 - DateTime.Now).Minutes);
+
+            if (!WashHall1.Any() || !WashHall2.Any())
+                return TimeSpan.Zero;
+            return time1 < time2 ? time1 - DateTime.Now : time2 - DateTime.Now;
+        }
+        public TimeSpan EstimatedTime(List<CarWash> hall)
+        {
+            DateTime time = DateTime.Now;
+            foreach (CarWash item in hall)
+                time = time.Add(item.WashEnd - time);
+
+            return time - DateTime.Now;
+        }
+        
 
         #region Tasks
         /// <summary>
@@ -176,28 +212,38 @@ namespace H2AfleveringsProjekt.Data.Methods
         }
         private void CheckForWash()
         {
-            if (!ListOfCarWashes.Any())
+            if (!WashHall1.Any())
                 return;
 
-            CarWash end = ListOfCarWashes[0];
-            if (end.WashEnd.CompareTo(DateTime.Now) < 0)
+            RemoveFromWasHall(WashHall1[0], WashHall1);
+            RemoveFromWasHall(WashHall2[0], WashHall2);
+
+        }
+        /// <summary>
+        /// Used in CheckForWash() to remove redundant code.
+        /// </summary>
+        /// <param name="wash"></param>
+        /// <param name="hall"></param>
+        private void RemoveFromWasHall(CarWash wash, List<CarWash> hall)
+        {
+            if (wash.WashEnd.CompareTo(DateTime.Now) < 0)
             {
-                ListOfCarWashes.Remove(end);
-                switch(end.Ticket.Type)
+                hall.Remove(wash);
+                switch (wash.Ticket.Type)
                 {
                     case CarType.Car:
-                        ListOfCars.FirstOrDefault(x => x.ticket.TicketID == end.Ticket.TicketID).ticket.CarWash = end;
+                        ListOfCars.FirstOrDefault(x => x.ticket.TicketID == wash.Ticket.TicketID).ticket.CarWash = wash;
                         break;
                     case CarType.ExtendedCar:
-                        ListOfExtendedCars.FirstOrDefault(x => x.ticket.TicketID == end.Ticket.TicketID).ticket.CarWash = end;
+                        ListOfExtendedCars.FirstOrDefault(x => x.ticket.TicketID == wash.Ticket.TicketID).ticket.CarWash = wash;
                         break;
                     case CarType.BigCar:
-                        ListOfBigCars.FirstOrDefault(x => x.ticket.TicketID == end.Ticket.TicketID).ticket.CarWash = end;
+                        ListOfBigCars.FirstOrDefault(x => x.ticket.TicketID == wash.Ticket.TicketID).ticket.CarWash = wash;
                         break;
                 }
-                Console.WriteLine("Done");
             }
         }
+        /// <returns>Price for the wash</returns>
         private int GetWashPrice(WashType type)
         {
             switch (type)

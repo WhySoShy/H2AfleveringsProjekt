@@ -12,6 +12,8 @@ namespace H2AfleveringsProjekt.Data.Interface
         List<Car> ListOfCars { get; set; }
         List<ExtendedCar> ListOfExtendedCars { get; set; }
         List<BigCar> ListOfBigCars { get; set; }
+        List<CarWash> WashHall1 { get; set; }
+        List<CarWash> WashHall2 { get; set; }
 
         /// <returns>The object of the TicketID or numberplate has been found</returns>
         ICar FindCarAsync<T>(string search);
@@ -21,5 +23,7 @@ namespace H2AfleveringsProjekt.Data.Interface
         Task<KeyValuePair<int, int>> CheckOut(string search);
         int WashCar(WashType type, Ticket ticket);
         Task RunCarWash();
+        TimeSpan EstimatedTime();
+        TimeSpan EstimatedTime(List<CarWash> hall);
     }
 }

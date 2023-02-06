@@ -20,6 +20,7 @@ namespace H2AfleveringsProjekt
                 Console.WriteLine("A: Register your car");
                 Console.WriteLine("B: Unregister your car");
                 Console.WriteLine("C: Wash your car");
+                Console.WriteLine("D: See waiting time");
                 Console.WriteLine("Z: See every registed cars");
             }
 
@@ -44,6 +45,9 @@ namespace H2AfleveringsProjekt
                             break;
                         case ConsoleKey.Z:
                             ui.ShowTicketlist();
+                            break;
+                        case ConsoleKey.D:
+                            ui.GetWashList();
                             break;
                         default:
                             continue;

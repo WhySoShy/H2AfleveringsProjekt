@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace H2AfleveringsProjekt.Services.Models.Enums
+namespace H2AfleveringsProjekt.Services.Models
 {
     public enum WashPrice
     {
