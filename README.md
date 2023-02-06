@@ -41,7 +41,7 @@
 
 
 ## Changelog
-[Github](https://github.com/user/project/commit)
+[Github](https://github.com/WhySoShy/project/commit)
 
 ### V0 til V1:
 
