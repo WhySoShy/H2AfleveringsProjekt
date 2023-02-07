@@ -62,14 +62,14 @@
     <Compile Include="Data\Methods\Parking.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Models\BigCar.cs" />
-    <Compile Include="Services\Models\Car.cs" />
+    <Compile Include="Services\Models\Car\BigCar.cs" />
+    <Compile Include="Services\Models\Car\Car.cs" />
     <Compile Include="Services\Models\CarWash.cs" />
     <Compile Include="Services\Models\Enums\WashPrice.cs" />
-    <Compile Include="Services\Models\ICar.cs" />
+    <Compile Include="Services\Models\Car\ICar.cs" />
     <Compile Include="Services\Models\Enums\CarType.cs" />
-    <Compile Include="Services\Models\ExtendedCar.cs" />
-    <Compile Include="Services\Models\Parkinglot.cs" />
+    <Compile Include="Services\Models\Car\ExtendedCar.cs" />
+    <Compile Include="Services\Models\Car\Parkinglot.cs" />
     <Compile Include="Services\Models\Ticket.cs" />
     <Compile Include="Services\Models\Enums\WashType.cs" />
     <Compile Include="Services\UI.cs" />
@@ -78,6 +78,5 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

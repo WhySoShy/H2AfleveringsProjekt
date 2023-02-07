@@ -21,6 +21,16 @@ namespace H2AfleveringsProjekt.Data.Methods
 
         #endregion
 
+        public Parking()
+        {
+            for (int i = 0; i < 10; i++)
+                ListOfCars.Add(new Car() { ParkingSpot = i + 1 });
+            for (int i = 0; i < 5; i++)
+                ListOfExtendedCars.Add(new ExtendedCar() { ParkingSpot = i + 1 });
+            for (int i = 0; i < 3; i++)
+                ListOfBigCars.Add(new BigCar() { ParkingSpot = i + 1 });
+        }
+
         public async Task<int> CheckIn(CarType type, string plate)
         {
             try
@@ -35,11 +45,11 @@ namespace H2AfleveringsProjekt.Data.Methods
                 switch (type)
                 {   
                     case CarType.Car:
-                        return await CreateCarObj(ListOfCars, parking.CarMaxSlots, new Car(), plate);
+                        return CreateCarObj(ListOfCars, parking.CarMaxSlots, new Car(), plate);
                     case CarType.ExtendedCar:
-                        return await CreateCarObj(ListOfExtendedCars, parking.ExtendedCarSlots, new ExtendedCar(), plate);
+                        return CreateCarObj(ListOfExtendedCars, parking.ExtendedCarSlots, new ExtendedCar(), plate);
                     case CarType.BigCar:
-                        return await CreateCarObj(ListOfBigCars, parking.BigCarSlots, new BigCar(), plate);
+                        return CreateCarObj(ListOfBigCars, parking.BigCarSlots, new BigCar(), plate);
                 }
                 return 2;
             }
@@ -81,7 +91,7 @@ namespace H2AfleveringsProjekt.Data.Methods
                 WashHall2.Add(_);
 
         }
-        public ICar FindCarAsync<T>(string search) 
+        public ICar FindCar(string search) 
              => ListOfCars.Cast<ICar>().Concat(ListOfExtendedCars.Cast<ICar>()).Concat(ListOfBigCars.Cast<ICar>()).FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
 
         public TimeSpan EstimatedTime()
@@ -132,7 +142,7 @@ namespace H2AfleveringsProjekt.Data.Methods
         /// <typeparam name="T">Can either be Car, ExtendedCar, BigCar</typeparam>
         /// <returns></returns>
         /// <exception cref="OverflowException"></exception>
-        private async Task<int> CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICar car, string plate) where T : ICar
+        private int CreateCarObj<T>(List<T> listOfCars, int maxSlotCount, ICar car, string plate) where T : ICar
         {
             if (listOfCars.Count(x => x.ticket != null) >= maxSlotCount)
                 throw new OverflowException("There is not enough space for you.");
@@ -179,7 +189,6 @@ namespace H2AfleveringsProjekt.Data.Methods
 
             return new KeyValuePair<int, int>(hours, hours*(int)type + washPrice);
         }
-
         private void CheckForWash()
         {
             if (!WashHall2.Any() && !WashHall1.Any())

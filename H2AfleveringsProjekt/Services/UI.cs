@@ -19,13 +19,6 @@ namespace H2AfleveringsProjekt.Services
         {
             ServiceProvider services = new ServiceCollection().AddSingleton<IParking, Parking>().BuildServiceProvider();
             _parking = services.GetRequiredService<IParking>();
-
-            for (int i = 0; i < 10; i++)
-                _parking.ListOfCars.Add(new Car() { ParkingSpot = i + 1 }) ;
-            for (int i = 0; i < 5; i++)
-                _parking.ListOfExtendedCars.Add(new ExtendedCar() { ParkingSpot = i + 1 });
-            for (int i = 0; i < 3; i++)
-                _parking.ListOfBigCars.Add(new BigCar() { ParkingSpot = i + 1 });
             //for (int i = 1; i <= 10; i++)
             //    _parking.CheckIn(CarType.Car, $"car{i}");
             //for (int i = 1; i < 10; i++)
@@ -117,7 +110,7 @@ namespace H2AfleveringsProjekt.Services
                     DesignError("Your search field cannot be empty!");
                     continue;
                 }
-                var obj = _parking.FindCarAsync<ICar>(search);
+                var obj = _parking.FindCar(search);
                 if (obj == null)
                 {
                     DesignError("Could not find your car");
@@ -144,7 +137,7 @@ namespace H2AfleveringsProjekt.Services
         /// </summary>
         /// <param name="text"></param>
         /// <returns></returns>
-        private async Task DesignError(string text)
+        private void DesignError(string text)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(text);
