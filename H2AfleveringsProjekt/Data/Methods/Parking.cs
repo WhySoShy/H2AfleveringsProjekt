@@ -18,6 +18,7 @@ namespace H2AfleveringsProjekt.Data.Methods
 
         int _ticketsSold = 0;
         int _carWashSold = 0;
+        private Parkinglot _parking;
 
         #endregion
 
@@ -29,6 +30,7 @@ namespace H2AfleveringsProjekt.Data.Methods
                 ListOfExtendedCars.Add(new ExtendedCar() { ParkingSpot = i + 1 });
             for (int i = 0; i < 3; i++)
                 ListOfBigCars.Add(new BigCar() { ParkingSpot = i + 1 });
+            _parking = new Parkinglot();
         }
 
         public async Task<int> CheckIn(CarType type, string plate)
@@ -40,16 +42,14 @@ namespace H2AfleveringsProjekt.Data.Methods
                     ListOfBigCars.Any(x => x.ticket?.NumerberPlate?.ToLower() == plate))
                     throw new Exception("There is already a car parked with this plate number!");
 
-                Parkinglot parking = new Parkinglot();
-
                 switch (type)
                 {   
                     case CarType.Car:
-                        return CreateCarObj(ListOfCars, parking.CarMaxSlots, new Car(), plate);
+                        return CreateCarObj(ListOfCars, _parking.CarMaxSlots, new Car(), plate);
                     case CarType.ExtendedCar:
-                        return CreateCarObj(ListOfExtendedCars, parking.ExtendedCarSlots, new ExtendedCar(), plate);
+                        return CreateCarObj(ListOfExtendedCars, _parking.ExtendedCarSlots, new ExtendedCar(), plate);
                     case CarType.BigCar:
-                        return CreateCarObj(ListOfBigCars, parking.BigCarSlots, new BigCar(), plate);
+                        return CreateCarObj(ListOfBigCars, _parking.BigCarSlots, new BigCar(), plate);
                 }
                 return 2;
             }
@@ -118,7 +118,6 @@ namespace H2AfleveringsProjekt.Data.Methods
             return time - DateTime.Now;
         }
         
-
         #region Tasks
         /// <summary>
         /// Task for running the Carwash
