@@ -27,8 +27,17 @@ Using the button **Z** you can see all the cars parked there.
 |    Console    |    C#         |       1       |
 | ------------- | ------------- | ------------- |
 
-
 ## Known issues
+* It does not remove you from the washing queue if you leave.
+
+## Unit tests
+#### CheckIn
+* [CheckInCar](https://github.com/WhySoShy/H2AfleveringsProjekt/blob/e53b5b267a6bb7bfcd7755d59bea7279d18d1e5e/H2AfleveringsProjekt.Test/UnitTest1.cs#L13) | Test
+* [OverFlowCheckIn](https://github.com/WhySoShy/H2AfleveringsProjekt/blob/e53b5b267a6bb7bfcd7755d59bea7279d18d1e5e/H2AfleveringsProjekt.Test/UnitTest1.cs#27) | Exception
+* [MultipleNumberPlates](https://github.com/WhySoShy/H2AfleveringsProjekt/blob/e53b5b267a6bb7bfcd7755d59bea7279d18d1e5e/H2AfleveringsProjekt.Test/UnitTest1.cs#L43) | Exception
+#### CheckOut
+* [CarNotFoundCheckOut](https://github.com/WhySoShy/H2AfleveringsProjekt/blob/e53b5b267a6bb7bfcd7755d59bea7279d18d1e5e/H2AfleveringsProjekt.Test/UnitTest1.cs#L58) | Exception
+
 
 
 
