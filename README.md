@@ -27,10 +27,6 @@ Using the button **Z** you can see all the cars parked there.
 
 
 
-## Instructions
-
-
-
 
 
 ## Information & tech
