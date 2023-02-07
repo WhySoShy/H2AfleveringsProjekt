@@ -5,9 +5,6 @@ using System.Threading.Tasks;
 using H2AfleveringsProjekt.Services.Models;
 using H2AfleveringsProjekt.Data.Interface;
 
-// TODO: Tilføje så de får den næste ledige plads - FIKSED
-// TODO: Tilføje en global tilbage knap
-
 namespace H2AfleveringsProjekt.Data.Methods
 {
     public class Parking : IParking
@@ -23,7 +20,6 @@ namespace H2AfleveringsProjekt.Data.Methods
         int _carWashSold = 0;
 
         #endregion
-
 
         public async Task<int> CheckIn(CarType type, string plate)
         {
@@ -52,16 +48,7 @@ namespace H2AfleveringsProjekt.Data.Methods
         }
         public async Task<KeyValuePair<int, int>> CheckOut(string search)
         {
-            ICar _;
-            _ = ListOfCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
-            if (_ != null)
-                return await GetCalculatedCar(_);
-
-            _ = ListOfExtendedCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
-            if (_ != null)
-                return await GetCalculatedCar(_);
-
-            _ = ListOfBigCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
+            ICar _ = ListOfCars.Cast<ICar>().Concat(ListOfExtendedCars.Cast<ICar>()).Concat(ListOfBigCars.Cast<ICar>()).FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
             if (_ != null)
                 return await GetCalculatedCar(_);
             
@@ -94,23 +81,9 @@ namespace H2AfleveringsProjekt.Data.Methods
                 WashHall2.Add(_);
 
         }
-        public ICar FindCarAsync<T>(string search)
-        {
-            ICar _;
-            _ = ListOfCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
-            if (_ != null)
-                return _;
+        public ICar FindCarAsync<T>(string search) 
+             => ListOfCars.Cast<ICar>().Concat(ListOfExtendedCars.Cast<ICar>()).Concat(ListOfBigCars.Cast<ICar>()).FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
 
-            _ = ListOfExtendedCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
-            if (_ != null)
-                return _;
-
-            _ = ListOfBigCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
-            if (_ != null)
-                return _;
-
-            return null;
-        }
         public TimeSpan EstimatedTime()
         {
             DateTime time1 = DateTime.Now;
@@ -201,7 +174,7 @@ namespace H2AfleveringsProjekt.Data.Methods
         {
             int hours = car.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
             CarType? type = car.ticket.Type;
-            int washPrice = car.ticket.CarWash.Price ?? 0;
+            int washPrice = car.ticket.CarWash?.Price ?? 0;
             car.ticket = null;           
 
             return new KeyValuePair<int, int>(hours, hours*(int)type + washPrice);
