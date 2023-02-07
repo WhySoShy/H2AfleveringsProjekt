@@ -2,15 +2,6 @@
 
 
 
-
-## Table of content
-* [UrTitles](#UrTitles)
-
-
-
-
-
-
 ## Intro
 The project is about a parking lot with 2 washing halls, you can park 3 different types of vehicles that goes under 3 different categories after their size.
 In the program you can register a vehicle using **A** where you register the type of car, and the number plate of yours.
@@ -22,9 +13,6 @@ Using the button **Z** you can see all the cars parked there.
 
 #### UML
 ![image](https://user-images.githubusercontent.com/72310789/217173263-9e0d8612-785a-4976-8274-cdcc0b25445f.png)
-
-
-
 
 
 
@@ -60,10 +48,4 @@ Using the button **Z** you can see all the cars parked there.
    - [Version 0.3](https://github.com/WhySoShy/H2AfleveringsProjekt/commit/a5a65bed7cf7daec345d7774a4ccf71f0e48ac17) | 
    - [Version 0.4](https://github.com/WhySoShy/H2AfleveringsProjekt/commit/d85ef477187ea40ab0c973d7a574debd7367884b) |
    - [Version 1.0](https://github.com/WhySoShy/H2AfleveringsProjekt/commit/02a5052a1ae75f1cce9e3998d263c54c5fd5e111) |
-
-
-
-# To-do
-
-* Add global back button
 
