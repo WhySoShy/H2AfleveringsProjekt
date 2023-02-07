@@ -50,11 +50,7 @@ Using the button **Z** you can see all the cars parked there.
 
 
 ## Changelog
-[Github](https://github.com/WhySoShy/project/commit)
-
-### V0 til V1:
-
-
+[Github](https://github.com/WhySoShy/H2AfleveringsProjekt/commit)
 
 
 
