@@ -14,7 +14,7 @@ Using the button **Z** you can see all the cars parked there.
 
 
 #### UML
-![image](https://user-images.githubusercontent.com/72310789/217173263-9e0d8612-785a-4976-8274-cdcc0b25445f.png)
+![image](https://user-images.githubusercontent.com/72310789/217210556-579a5082-dd3d-4b9d-aaed-673afa97e48f.png)
 
 
 ## Information & tech
