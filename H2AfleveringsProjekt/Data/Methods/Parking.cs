@@ -53,21 +53,21 @@ namespace H2AfleveringsProjekt.Data.Methods
         public async Task<KeyValuePair<int, int>> CheckOut(string search)
         {
             ICar _;
-            _ = ListOfCars.FirstOrDefault(x => x.ticket?.NumerberPlate == search || Convert.ToString(x.ticket?.TicketID) == search);
+            _ = ListOfCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
             if (_ != null)
-                return await GetCalculatedCar(_, search);
+                return await GetCalculatedCar(_);
 
-            _ = ListOfExtendedCars.FirstOrDefault(x => x.ticket?.NumerberPlate == search || Convert.ToString(x.ticket?.TicketID) == search);
+            _ = ListOfExtendedCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
             if (_ != null)
-                return await GetCalculatedCar(_, search);
+                return await GetCalculatedCar(_);
 
-            _ = ListOfBigCars.FirstOrDefault(x => x.ticket?.NumerberPlate == search || Convert.ToString(x.ticket?.TicketID) == search);
+            _ = ListOfBigCars.FirstOrDefault(x => x.ticket?.NumerberPlate.ToLower() == search.ToLower() || Convert.ToString(x.ticket?.TicketID) == search);
             if (_ != null)
-                return await GetCalculatedCar(_, search);
+                return await GetCalculatedCar(_);
             
             throw new KeyNotFoundException("Could not find the car matching your TicketID / Numberplate.");
         }   
-        public int WashCar(WashType type, Ticket ticket)
+        public void WashCar(WashType type, Ticket ticket)
         {
             _carWashSold++;
             CarWash _ = new CarWash()
@@ -79,22 +79,20 @@ namespace H2AfleveringsProjekt.Data.Methods
             };
 
             if (!WashHall1.Any() || !WashHall2.Any())
-            {
-                _.WashEnd = DateTime.Now.AddMinutes((int)type);
-            }
+                _.WashEnd = DateTime.Now.AddSeconds((int)type);
+
             else
             {
                 if (_carWashSold % 2 == 0)
-                    _.WashEnd = WashHall1[WashHall1.Count() - 1].WashEnd.AddMinutes((int)type);
+                    _.WashEnd = WashHall1[WashHall1.Count() - 1].WashEnd.AddSeconds((int)type);
                 else 
-                    _.WashEnd = WashHall2[WashHall2.Count() - 1].WashEnd.AddMinutes((int)type);
+                    _.WashEnd = WashHall2[WashHall2.Count() - 1].WashEnd.AddSeconds((int)type);
             }
             if (_carWashSold % 2 == 0)
                 WashHall1.Add(_);
             else 
                 WashHall2.Add(_);
 
-            return (int)_.WashType;
         }
         public ICar FindCarAsync<T>(string search)
         {
@@ -123,9 +121,6 @@ namespace H2AfleveringsProjekt.Data.Methods
 
             foreach (var item in WashHall2)
                 time2 = time2.Add(item.WashEnd  - time2);
-
-            Console.WriteLine((time1 - DateTime.Now).Minutes);
-            Console.WriteLine((time2 - DateTime.Now).Minutes);
 
             if (!WashHall1.Any() || !WashHall2.Any())
                 return TimeSpan.Zero;
@@ -202,21 +197,26 @@ namespace H2AfleveringsProjekt.Data.Methods
         /// <param name="thisList"></param>
         /// <param name="search"></param>
         /// <returns>Hours, Cost of parking in $</returns>
-        private async Task<KeyValuePair<int, int>> GetCalculatedCar(ICar car, string search)
+        private async Task<KeyValuePair<int, int>> GetCalculatedCar(ICar car)
         {
             int hours = car.ticket.ParkStart.Value.Subtract(DateTime.UtcNow).Hours + 5;
             CarType? type = car.ticket.Type;
-            car.ticket = null;
-            
-            return new KeyValuePair<int, int>(hours, hours*(int)type + (car.ticket?.CarWash.Price ?? 0));
+            int washPrice = car.ticket.CarWash.Price ?? 0;
+            car.ticket = null;           
+
+            return new KeyValuePair<int, int>(hours, hours*(int)type + washPrice);
         }
+
         private void CheckForWash()
         {
-            if (!WashHall1.Any())
+            if (!WashHall2.Any() && !WashHall1.Any())
                 return;
-
-            RemoveFromWasHall(WashHall1[0], WashHall1);
-            RemoveFromWasHall(WashHall2[0], WashHall2);
+            
+            if (WashHall1.Any())
+                RemoveFromWasHall(WashHall1[0], WashHall1);
+            
+            if (WashHall2.Any())
+                RemoveFromWasHall(WashHall2[0], WashHall2);
 
         }
         /// <summary>
@@ -226,9 +226,11 @@ namespace H2AfleveringsProjekt.Data.Methods
         /// <param name="hall"></param>
         private void RemoveFromWasHall(CarWash wash, List<CarWash> hall)
         {
+            Console.WriteLine(DateTime.Now);
             if (wash.WashEnd.CompareTo(DateTime.Now) < 0)
             {
                 hall.Remove(wash);
+                Console.WriteLine("Removed");
                 switch (wash.Ticket.Type)
                 {
                     case CarType.Car:

@@ -26,8 +26,10 @@ namespace H2AfleveringsProjekt.Services
                 _parking.ListOfExtendedCars.Add(new ExtendedCar() { ParkingSpot = i + 1 });
             for (int i = 0; i < 3; i++)
                 _parking.ListOfBigCars.Add(new BigCar() { ParkingSpot = i + 1 });
-            for (int i = 1; i <= 10; i++)
-                _parking.CheckIn(CarType.Car, $"car{i}");
+            //for (int i = 1; i <= 10; i++)
+            //    _parking.CheckIn(CarType.Car, $"car{i}");
+            //for (int i = 1; i < 10; i++)
+            //    _parking.WashCar(WashType.Economic, _parking.ListOfCars.Find(x => x.ticket.NumerberPlate == $"car{i}").ticket);
 
             Task.Run(() => _parking.RunCarWash());
         }
@@ -135,7 +137,8 @@ namespace H2AfleveringsProjekt.Services
             Console.WriteLine($"Estimated waiting time for hall2: {_parking.EstimatedTime(_parking.WashHall2).Minutes} minutes");
         }
 
-        #region Private & Protected methods
+        #region Private methods
+
         /// <summary>
         /// Displays your error message in red and changes the text to white again.
         /// </summary>
@@ -149,6 +152,7 @@ namespace H2AfleveringsProjekt.Services
         }
         private async Task ShowCarsAsync<T>(List<T> thisList) where T : ICar
         {
+            //Console.WriteLine(thisList.GetType());
             if (!thisList.Any(x => x.ticket != null))
             {
                 Console.WriteLine($"There is no cars of this type.");
@@ -157,7 +161,7 @@ namespace H2AfleveringsProjekt.Services
             foreach (var car in thisList.Where(x => x.ticket != null).ToList())
             {
                 Console.WriteLine($"---------[  {car.ParkingSpot}  ]---------");
-                Console.WriteLine($"TicketID:       {car.ticket.TicketID}");
+                Console.WriteLine($"TicketID:        {car.ticket.TicketID}");
                 Console.WriteLine($"Platenumber:     {car.ticket.NumerberPlate}");
                 Console.WriteLine($"Parked:          {car.ticket.ParkStart}");
                 if (car.ticket.CarWash != null)
@@ -199,9 +203,9 @@ namespace H2AfleveringsProjekt.Services
             {
                 Console.Clear();
                 Console.WriteLine("Prices are per wash \n");
-                Console.WriteLine($"A: {WashType.Economic}      | Time: {(int)WashType.Economic}minutes      | Price: {WashPrice.Economic}   | EST: {_parking.EstimatedTime().Minutes}m");
-                Console.WriteLine($"B: {WashType.Basic}         | Time: {(int)WashType.Basic}minutes      | Price: {WashPrice.Basic}      | EST: {_parking.EstimatedTime().Minutes}m");
-                Console.WriteLine($"C: {WashType.Premium}       | Time: {(int)WashType.Premium}minutes      | Price: {WashPrice.Premium}    | EST: {_parking.EstimatedTime().Minutes}m");
+                Console.WriteLine($"A: {WashType.Economic}      | Time: {(int)WashType.Economic}minutes      | Price: {WashPrice.Economic}  {(int)WashPrice.Economic}$   | EST: {_parking.EstimatedTime().Minutes}m");
+                Console.WriteLine($"B: {WashType.Basic}         | Time: {(int)WashType.Basic}minutes      | Price: {WashPrice.Basic}     {(int)WashPrice.Basic}$   | EST: {_parking.EstimatedTime().Minutes}m");
+                Console.WriteLine($"C: {WashType.Premium}       | Time: {(int)WashType.Premium}minutes      | Price: {WashPrice.Premium}  {(int)WashPrice.Premium}$   | EST: {_parking.EstimatedTime().Minutes}m");
                 ConsoleKeyInfo key = Console.ReadKey(true);
 
                 switch(key.Key)
