@@ -19,10 +19,6 @@ namespace H2AfleveringsProjekt.Services
         {
             ServiceProvider services = new ServiceCollection().AddSingleton<IParking, Parking>().BuildServiceProvider();
             _parking = services.GetRequiredService<IParking>();
-            //for (int i = 1; i <= 10; i++)
-            //    _parking.CheckIn(CarType.Car, $"car{i}");
-            //for (int i = 1; i < 10; i++)
-            //    _parking.WashCar(WashType.Economic, _parking.ListOfCars.Find(x => x.ticket.NumerberPlate == $"car{i}").ticket);
 
             Task.Run(() => _parking.RunCarWash());
         }

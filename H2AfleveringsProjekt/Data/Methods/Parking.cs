@@ -208,11 +208,9 @@ namespace H2AfleveringsProjekt.Data.Methods
         /// <param name="hall"></param>
         private void RemoveFromWasHall(CarWash wash, List<CarWash> hall)
         {
-            Console.WriteLine(DateTime.Now);
             if (wash.WashEnd.CompareTo(DateTime.Now) < 0)
             {
                 hall.Remove(wash);
-                Console.WriteLine("Removed");
                 switch (wash.Ticket.Type)
                 {
                     case CarType.Car:
